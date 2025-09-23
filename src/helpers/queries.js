@@ -24,13 +24,20 @@ export const obtenerProductoPorID = async (id) => {
 
 export const crearProducto = async (productoNuevo) => {
   try {
+    const formData = new FormData();
+    formData.append('nombreProducto', productoNuevo.nombreProducto)
+    formData.append("precio", productoNuevo.precio);
+    formData.append("categoria", productoNuevo.categoria);
+    formData.append("descripcion_breve", productoNuevo.descripcion_breve);
+    formData.append("descripcion_amplia", productoNuevo.descripcion_amplia);
+    formData.append("imagen", productoNuevo.imagen); // imagen es un File
+
     const respuesta = await fetch(urlproductos, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         "x-token": JSON.parse(sessionStorage.getItem("userKey")).token,
       },
-      body: JSON.stringify(productoNuevo),
+      body: formData,
     });
     return respuesta;
   } catch (error) {

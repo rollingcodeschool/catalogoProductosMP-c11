@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
@@ -8,17 +8,21 @@ import {
   obtenerProductoPorID,
   editarProducto,
 } from "../../../helpers/queries";
+import './FormularioProducto.css'
 
 const FormularioProducto = ({ titulo }) => {
   const {
     register,
     handleSubmit,
     reset,
+    resetField,
     formState: { errors },
     setValue,
   } = useForm();
   const { id } = useParams();
   const navegacion = useNavigate();
+  const [imagenActual, setImagenActual] = useState("");
+  const [preview, setPreview] = useState("");
 
   useEffect(() => {
     //verificar si estoy editando
@@ -33,18 +37,23 @@ const FormularioProducto = ({ titulo }) => {
         const productoBuscado = await respuesta.json();
         setValue("nombreProducto", productoBuscado.nombreProducto);
         setValue("precio", productoBuscado.precio);
-        setValue("imagen", productoBuscado.imagen);
         setValue("descripcion_breve", productoBuscado.descripcion_breve);
         setValue("descripcion_amplia", productoBuscado.descripcion_amplia);
         setValue("categoria", productoBuscado.categoria);
+        setImagenActual(productoBuscado.imagen);
       }
     }
   };
 
   const onSubmit = async (producto) => {
+    console.log(producto)
+    const productoMejorado = {
+      ...producto,
+      imagen: producto.imagen[0]
+    }
     if (titulo === "Crear producto") {
       //crear el producto nuevo
-      const respuesta = await crearProducto(producto);
+      const respuesta = await crearProducto(productoMejorado);
       if (respuesta.status === 201) {
         Swal.fire({
           title: "Producto creado",
@@ -63,7 +72,7 @@ const FormularioProducto = ({ titulo }) => {
       }
     } else {
       //tomar los del formulario 'producto'
-      const respuesta = await editarProducto(producto, id);
+      const respuesta = await editarProducto(productoMejorado, id);
       if (respuesta.status === 200) {
         Swal.fire({
           title: "Producto editado",
@@ -135,21 +144,53 @@ const FormularioProducto = ({ titulo }) => {
             {errors.precio?.message}
           </Form.Text>
         </Form.Group>
-        <Form.Group className="mb-3" controlId="formImagen">
+       <Form.Group className="mb-3" controlId="formImagen">
           <Form.Label>Imagen URL*</Form.Label>
           <Form.Control
-            type="text"
-            placeholder="Ej: https://www.pexels.com/es-es/vans-en-blanco-y-negro-fuera-de-la-decoracion-para-colgar-en-la-pared-1230679/"
+            type="file"
+            accept="image/*"
             {...register("imagen", {
-              required: "La url de la imagen es un dato obligatorio",
-              pattern: {
-                value:
-                  /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?(\.(jpg|jpeg|png|webp))$/,
-                message:
-                  "La imagen debe ser una url de imagen valida terminada en (jpg|jpeg|png|webp)",
+              required:
+                titulo === "Crear producto"
+                  ? "La imagen es obligatoria"
+                  : false,
+              validate: {
+                fileSize: (files) =>
+                  !files[0] ||
+                  files[0].size <= 2 * 1024 * 1024 ||
+                  "La imagen no debe superar los 2MB.",
               },
             })}
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (file) {
+                setPreview(URL.createObjectURL(file)); //crea una URL temporal en el navegador
+              } else {
+                setPreview("");
+              }
+            }}
           />
+          {(preview || imagenActual) && (
+            <div className="mb-2 position-relative d-inline-block mt-3">
+              <img
+                className="rounded-3 img-preview"
+                src={preview || imagenActual}
+                alt="Imagen"
+              />
+              <Button
+                variant="light"
+                size="sm"
+                className="p-0 d-flex align-items-center justify-content-center shadow btn-img-preview"
+                onClick={() => {
+                  setPreview('');
+                  setImagenActual('');
+                  resetField('imagen');
+                }}
+              >
+                <i className="bi bi-x fs-5 text-danger"></i>
+              </Button>
+            </div>
+          )}
           <Form.Text className="text-danger">
             {errors.imagen?.message}
           </Form.Text>
