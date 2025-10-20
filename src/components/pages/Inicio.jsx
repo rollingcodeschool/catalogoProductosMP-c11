@@ -3,7 +3,7 @@ import CardProducto from "./producto/CardProducto";
 import { useState, useEffect } from "react";
 import { leerProductos } from "../../helpers/queries";
 
-const Inicio = () => {
+const Inicio = ({ agregarAlCarrito }) => {
   const [terminoBusqueda, setTerminoBusqueda] = useState("");
   const [productos, setProductos] = useState([]);
 
@@ -58,6 +58,7 @@ const Inicio = () => {
               <CardProducto
                 key={producto._id}
                 producto={producto}
+                   agregarAlCarrito={agregarAlCarrito}
               ></CardProducto>
             ))
           ) : (

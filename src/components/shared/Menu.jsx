@@ -2,13 +2,13 @@ import { Navbar, Container, Nav, Button } from "react-bootstrap";
 import logo from "../../assets/coffee_logo.png";
 import { NavLink, Link, useNavigate } from "react-router";
 
-const Menu = ({ usuarioAdmin, setUsuarioAdmin }) => {
-const navegacion = useNavigate()
+const Menu = ({ usuarioAdmin, setUsuarioAdmin, carrito }) => {
+  const navegacion = useNavigate();
 
-  const logout = ()=>{
-    setUsuarioAdmin({})
-    navegacion('/')
-  }
+  const logout = () => {
+    setUsuarioAdmin({});
+    navegacion("/");
+  };
 
   return (
     <Navbar expand="lg" className="bg-body-tertiary">
@@ -32,7 +32,12 @@ const navegacion = useNavigate()
                 <NavLink className="nav-link" to={"/administrador"}>
                   Administrador
                 </NavLink>
-                <Button className="nav-link" onClick={logout}>Logout</Button>
+                <NavLink className="nav-link" to={"/carrito"}>
+                  Carrito
+                </NavLink>
+                <Button className="nav-link" onClick={logout}>
+                  Logout
+                </Button>
               </>
             ) : (
               <NavLink className="nav-link" to={"/login"}>
