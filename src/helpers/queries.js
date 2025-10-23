@@ -95,8 +95,7 @@ export const login = async (datosUsuario) => {
 
 export const leerProductosPaginados = async (page, limit) => {
   try {
-    // const respuesta = await fetch(`${urlproductos}/paginacion?page=${page}&limit=${limit}`);
-    const respuesta = await fetch(`${urlproductos}/paginados?page=${page}&limit=${limit}`);
+    const respuesta = await fetch(`${urlproductos}/paginacion?page=${page}&limit=${limit}`);
     return respuesta;
   } catch (error) {
     console.error(error);
